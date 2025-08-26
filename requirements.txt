@@ -1,0 +1,17 @@
+setuptools>=65.5.0
+wheel
+gunicorn
+
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.2
+matplotlib==3.8.4
+seaborn==0.13.2
+flask==2.3.3
+joblib==1.4.2
+pytest==8.3.3
+python-dotenv==1.0.1
+scikit-image==0.24.0
+scipy==1.16.1
+threadpoolctl==3.6.0
+xgboost==2.1.1

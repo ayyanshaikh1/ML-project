@@ -1,0 +1,13 @@
+venv/
+**/__pycache__/
+*.pyc
+artifacts/
+logs/
+data/processed/
+data/raw/*.csv
+data/raw/*.xlsx
+*.pkl
+*.npz
+*.log
+.DS_Store
+Thumbs.db
