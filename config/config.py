@@ -20,7 +20,8 @@ TRAINING_PIPELINE_CONFIG = {
 
 # Data ingestion config
 DATA_INGESTION_CONFIG = {
-    "dataset_download_url": None,  # Add URL if data needs to be downloaded
+    # Optionally provide a CSV URL via env var for runtime download on Render
+    "dataset_download_url": os.environ.get("DATA_FILE_URL"),
     "raw_data_dir": RAW_DATA_DIR,
     "ingested_dir": os.path.join(ARTIFACTS_DIR, CURRENT_TIME_STAMP, "data_ingestion"),
     "ingested_train_dir": os.path.join(ARTIFACTS_DIR, CURRENT_TIME_STAMP, "data_ingestion", "train"),

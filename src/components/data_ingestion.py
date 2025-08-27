@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+import urllib.request
 from src.utils.logger import get_logger
 from src.utils.exception import CustomException
 from config.config import DATA_INGESTION_CONFIG
@@ -36,9 +37,18 @@ class DataIngestion:
             # If file path is not provided, prefer a labeled file (contains target column)
             if file_path is None:
                 raw_dir = self.ingestion_config["raw_data_dir"]
+                os.makedirs(raw_dir, exist_ok=True)
                 raw_files = [os.path.join(raw_dir, f) for f in os.listdir(raw_dir)]
+                # If empty on Render, optionally download from DATA_FILE_URL
                 if len(raw_files) == 0:
-                    raise Exception("No files found in raw data directory")
+                    download_url = self.ingestion_config.get("dataset_download_url")
+                    if download_url:
+                        target_path = os.path.join(raw_dir, "dataset.csv")
+                        logger.info(f"Raw data folder empty. Downloading dataset from {download_url} -> {target_path}")
+                        urllib.request.urlretrieve(download_url, target_path)
+                        raw_files = [target_path]
+                    else:
+                        raise Exception("No files found in raw data directory and no DATA_FILE_URL provided")
 
                 def has_target(fp):
                     try:
