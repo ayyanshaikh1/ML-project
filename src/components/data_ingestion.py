@@ -33,12 +33,29 @@ class DataIngestion:
             
             logger.info("Data ingestion initiated")
             
-            # If file path is not provided, use the first file in raw data directory
+            # If file path is not provided, prefer a labeled file (contains target column)
             if file_path is None:
-                raw_files = os.listdir(self.ingestion_config["raw_data_dir"])
+                raw_dir = self.ingestion_config["raw_data_dir"]
+                raw_files = [os.path.join(raw_dir, f) for f in os.listdir(raw_dir)]
                 if len(raw_files) == 0:
                     raise Exception("No files found in raw data directory")
-                file_path = os.path.join(self.ingestion_config["raw_data_dir"], raw_files[0])
+
+                def has_target(fp):
+                    try:
+                        if fp.lower().endswith('.csv'):
+                            df_head = pd.read_csv(fp, nrows=5)
+                        elif fp.lower().endswith(('.xls', '.xlsx')):
+                            df_head = pd.read_excel(fp, nrows=5)
+                        else:
+                            return False
+                        return "Good/Bad" in df_head.columns
+                    except Exception:
+                        return False
+
+                labeled = [f for f in raw_files if has_target(f)]
+                candidate_files = labeled if labeled else raw_files
+                # Choose the most recently modified candidate
+                file_path = max(candidate_files, key=lambda p: os.path.getmtime(p))
             
             logger.info(f"Reading data from {file_path}")
             

@@ -1,5 +1,6 @@
 import os
 import pickle
+import joblib
 import numpy as np
 import pandas as pd
 from src.utils.logger import get_logger
@@ -25,15 +26,25 @@ def save_object(file_path, obj):
 
 def load_object(file_path):
     """
-    Load a Python object from a file using pickle
+    Load a Python object from disk. Try joblib first (robust for sklearn/xgboost),
+    fall back to pickle for older artifacts. This mitigates numpy _reconstruct errors.
     """
     try:
+        # First try joblib (handles numpy arrays and sklearn pipelines better)
+        try:
+            obj = joblib.load(file_path)
+            logger.info(f"Object (joblib) loaded successfully from: {file_path}")
+            return obj
+        except Exception as joblib_err:
+            logger.warning(f"joblib load failed for {file_path}: {joblib_err}; falling back to pickle")
+
+        # Fall back to pickle
         with open(file_path, "rb") as file_obj:
             obj = pickle.load(file_obj)
-        logger.info(f"Object loaded successfully from: {file_path}")
+        logger.info(f"Object (pickle) loaded successfully from: {file_path}")
         return obj
     except Exception as e:
-        logger.error(f"Error in load_object: {e}")
+        logger.error(f"Error in load_object for {file_path}: {e}")
         raise CustomException(e)
 
 def save_numpy_array_data(file_path, array):
