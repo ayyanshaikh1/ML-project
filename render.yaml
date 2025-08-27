@@ -5,8 +5,9 @@ services:
     plan: free
     buildCommand: |
       python --version
-      pip install --upgrade pip setuptools wheel
-      pip install -r requirements-prod.txt
+      python -m pip install --upgrade pip==24.0 setuptools==69.5.1 wheel==0.42.0
+      python -m pip install --upgrade build==1.2.1
+      PIP_ONLY_BINARY=:all: python -m pip install -r requirements.txt
     startCommand: gunicorn -w 2 -k gthread -b 0.0.0.0:$PORT src.app:app
     autoDeploy: true
     healthCheckPath: /
@@ -15,4 +16,8 @@ services:
         value: "1"
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: PIP_ONLY_BINARY
+        value: ":all:"
+      - key: PIP_DISABLE_PIP_VERSION_CHECK
+        value: "1"
 
